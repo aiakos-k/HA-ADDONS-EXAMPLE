@@ -35,11 +35,14 @@ supervisor_run
 ```
 
 **Fertig!** 🎉
-Das Add-on läuft jetzt unter:
 
-- Dashboard: http://localhost:7123 (Home Assistant)
-- Backend API: http://localhost:8000
-- Swagger Docs: http://localhost:8000/docs
+- **Home Assistant**: http://localhost:7123
+- **Add-on Dashboard**: In der HA-Seitenleiste → "Example Dashboard"
+- Backend API (direkt): http://localhost:8000
+- Swagger Docs (direkt): http://localhost:8000/docs
+
+> Das Add-on wird über **Ingress** in der Seitenleiste angezeigt.
+> Falls es nicht erscheint, `./dev.sh start:addon` nochmal ausführen.
 
 ---
 
@@ -165,15 +168,20 @@ python3 --version
 pip install -r requirements.txt
 ```
 
-### Frontend zeigt nichts
+### Frontend zeigt nichts / 404 Not Found
 
 ```bash
 # Backend läuft?
 curl http://localhost:8000/health
 
-# Frontend bauen
+# Frontend neu bauen (wichtig: vite.config.ts muss base: './' haben!)
 cd example/frontend && npm run build
+
+# Add-on neu starten
+./dev.sh start:addon
 ```
+
+→ Details zu Ingress-Routing siehe [TEMPLATE_GUIDE.md](./TEMPLATE_GUIDE.md)
 
 ### "Port already in use"
 
@@ -203,6 +211,13 @@ kill -9 <PID>
 4. **In Home Assistant testen** - Mit echten Smart Home Devices
 5. **GitHub Actions einrichten** - Automatische Builds
 6. **Publishen** - In Community teilen 🎉
+
+---
+
+## 📖 Weiterführend
+
+- [TEMPLATE_GUIDE.md](./TEMPLATE_GUIDE.md) — Technische Details zu Ingress, Routing und DevContainer-Patches
+- [Home Assistant Add-on Docs](https://developers.home-assistant.io/docs/add-ons/)
 
 ---
 

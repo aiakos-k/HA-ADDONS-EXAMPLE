@@ -20,7 +20,6 @@ Dieses Repository zeigt die moderne, empfohlene Architektur für HA-Add-ons:
 
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
-![Supports armv7 Architecture][armv7-shield]
 
 Modernes Home Assistant Add-on mit **FastAPI Backend**, **React Frontend** und **WebSocket Integration**.
 
@@ -33,7 +32,8 @@ Modernes Home Assistant Add-on mit **FastAPI Backend**, **React Frontend** und *
 - ✅ VS Code DevContainer
 - ✅ Async Architecture
 
-**Neue Benutzer?** → Siehe [example/README_NEW.md](./example/README_NEW.md)
+**Neue Benutzer?** → Siehe [QUICKSTART.md](./QUICKSTART.md)
+**Technische Details?** → Siehe [TEMPLATE_GUIDE.md](./TEMPLATE_GUIDE.md)
 
 ## 🚀 Schnelleinstieg
 
@@ -50,12 +50,14 @@ code .
 # 3. Remote Container Extension öffnen
 # Command Palette: "Dev Container: Reopen in Container"
 
-# 4. Home Assistant starten
+# 4. Home Assistant starten (falls nicht automatisch gestartet)
 ha supervisor start
 
 # 5. Add-on bauen und starten
-ha addons rebuild --force local_example
-ha addons start local_example
+./dev.sh start:addon
+# Oder manuell:
+# ha apps rebuild --force local_example
+# ha apps start local_example
 ```
 
 ### Lokale Entwicklung ohne DevContainer
@@ -74,6 +76,8 @@ npm run dev
 
 Backend: http://localhost:8000
 Frontend: http://localhost:3000
+
+> **Im DevContainer** öffne http://localhost:7123 → Das Add-on erscheint in der **Seitenleiste**.
 
 ## 📁 Projektstruktur
 
@@ -210,14 +214,15 @@ docker run --network="host" test_addon
 ### Im Home Assistant DevContainer
 
 ```bash
-# Rebuild Add-on
-ha addons rebuild --force local_example
+# Rebuild & Start Add-on (empfohlen)
+./dev.sh start:addon
 
-# Start Add-on
-ha addons start local_example
+# Oder manuell:
+ha apps rebuild --force local_example
+ha apps start local_example
 
 # View Logs
-docker logs --follow addon_local_example
+./dev.sh logs
 ```
 
 ## 📝 Weitere Schritte nach Setup
@@ -237,14 +242,21 @@ docker logs --follow addon_local_example
 docker logs addon_local_example
 ```
 
-### Frontend wird nicht angezeigt
+### Frontend wird nicht angezeigt / 404 Not Found
 ```bash
-# Frontend muss gebaut werden
+# Frontend muss mit relativen Pfaden gebaut werden (base: './' in vite.config.ts)
 cd example/frontend
 npm run build
 ```
+→ Siehe [TEMPLATE_GUIDE.md](./TEMPLATE_GUIDE.md) für Details zum Ingress-Routing
 
-### WebSocket Verbindung failu
+### Add-on nicht in der Seitenleiste
+```bash
+# ingress_panel muss aktiviert werden (./dev.sh start:addon macht das automatisch)
+./dev.sh start:addon
+```
+
+### WebSocket Verbindung fehlgeschlagen
 - Im DevContainer: WebSocket läuft auf `supervisor` Hostname
 - Nicht `localhost`!
 
