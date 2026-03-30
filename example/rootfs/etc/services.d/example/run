@@ -1,19 +1,26 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
-# Start the example service
-# s6-overlay docs: https://github.com/just-containers/s6-overlay
+# Home Assistant Add-on Service Start
+# ==============================================================================
+# FastAPI backend server that communicates with Home Assistant
+# https://developers.home-assistant.io/docs/add-ons/
 # ==============================================================================
 
-# Add your code here
-
 # Declare variables
-declare message
+declare log_level
 
-## Get the 'message' key from the user config options.
-message=$(bashio::config 'message')
+## Get log level from config
+log_level=$(bashio::config 'log_level')
 
-## Print the message the user supplied, defaults to "Hello World..."
-bashio::log.info "${message:="Hello World..."}"
+## Set Python environment
+export PYTHONUNBUFFERED=1
+export LOG_LEVEL="${log_level:=info}"
 
-## Run your program
-exec /usr/bin/my_program
+bashio::log.info "Starting Home Assistant Add-on..."
+bashio::log.info "Log level: ${LOG_LEVEL}"
+
+## Change to app directory
+cd /app/backend
+
+## Run FastAPI application
+exec python3 main.py
