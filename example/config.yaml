@@ -16,6 +16,11 @@ panel_icon: mdi:application
 panel_title: Example Dashboard
 ports:
   8000/tcp: 8000
+# Enable if your add-on needs to communicate with Home Assistant
+homeassistant_api: true
+# Enable if your add-on needs Supervisor API access
+hassio_api: true
+hassio_role: admin
 map:
   - share:rw
 options:

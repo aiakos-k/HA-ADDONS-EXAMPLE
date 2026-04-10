@@ -12,7 +12,13 @@ interface HAResponse<T = any> {
 
 const isProd = import.meta.env.MODE === "production";
 
-export const API_BASE_URL = isProd ? "api" : "http://localhost:8000/api";
+// Use window.location.pathname to build the API base URL.
+// This works correctly in all contexts: HA Ingress, direct access, and dev mode.
+// In HA ingress the page is served at /api/hassio_ingress/<token>/
+// so API calls must go through the same prefix.
+export const API_BASE_URL = isProd
+  ? window.location.pathname.replace(/\/$/, "") + "/api"
+  : "http://localhost:8000/api";
 
 export const WS_URL = isProd
   ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}${window.location.pathname.replace(/\/$/, "")}/ws`

@@ -46,6 +46,27 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+class PathNormalizationMiddleware:
+    """Collapse double slashes injected by the HA ingress proxy.
+
+    Works for both HTTP and WebSocket scope types.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] in ("http", "websocket"):
+            path = scope["path"]
+            while "//" in path:
+                path = path.replace("//", "/")
+            scope["path"] = path
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(PathNormalizationMiddleware)
+
 # Include routers
 app.include_router(router)
 
