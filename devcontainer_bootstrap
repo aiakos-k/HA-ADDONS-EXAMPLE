@@ -17,6 +17,12 @@ if ! command -v apparmor_parser &> /dev/null; then
   chmod +x /usr/local/bin/apparmor_parser
 fi
 
+# Ensure /run/supervisor is a directory (fix for Home Assistant Core mount)
+if [ -f /run/supervisor ]; then
+  rm -f /run/supervisor
+fi
+mkdir -p /run/supervisor
+
 # Check if Python is available
 if ! command -v python3 &> /dev/null; then
   echo "⚠️  Python3 not found in PATH. Trying to locate..."
