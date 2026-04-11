@@ -90,24 +90,31 @@ patch_supervisor() {
   echo "🔧 Applying DevContainer patches to Supervisor..."
 
   # Patch 1: Skip gateway firewall check (requires systemd/dbus)
-  # Uses regex to handle different supervisor versions (with/without sys_dev check)
   docker exec hassio_supervisor python3 -c "
-import re
 path = '/usr/src/supervisor/supervisor/host/firewall.py'
 with open(path, 'r') as f:
-    content = f.read()
-# Match the public apply_gateway_firewall_rules method regardless of body
-pattern = r'(    async def apply_gateway_firewall_rules\(self\) -> None:\n        \"\"\"[^\"]*\"\"\"\n)(.*?)(?=\n    async def |\n    def |\nclass |\Z)'
-replacement = r'''\1        _LOGGER.info(\"Gateway firewall rules skipped (DevContainer)\")\n'''
-new_content, count = re.subn(pattern, replacement, content, flags=re.DOTALL)
-if count > 0 and 'skipped (DevContainer)' not in content:
-    with open(path, 'w') as f:
-        f.write(new_content)
-    print('patched')
-elif 'skipped (DevContainer)' in content:
-    print('already patched')
-else:
-    print('pattern not found')
+    lines = f.readlines()
+
+new_lines = []
+skip_until_next_method = False
+for line in lines:
+    if skip_until_next_method:
+        if line.startswith('    async def ') or line.startswith('    def '):
+            skip_until_next_method = False
+            new_lines.append(line)
+        continue
+
+    if 'async def apply_gateway_firewall_rules' in line:
+        new_lines.append(line)
+        new_lines.append('        \"\"\"Apply gateway firewall rules - skipped in DevContainer.\"\"\"\n')
+        new_lines.append('        return\n')
+        skip_until_next_method = True
+    else:
+        new_lines.append(line)
+
+with open(path, 'w') as f:
+    f.writelines(new_lines)
+print('patched')
 " 2>/dev/null && echo "  ✅ Firewall patch applied" || echo "  ⚠️  Firewall patch skipped"
 
   # Patch 2: Skip dbus agent call for diagnostics (requires os-agent)

@@ -183,31 +183,6 @@ cd example/frontend && npm run build
 
 → For details on Ingress routing see [TEMPLATE_GUIDE.md](./TEMPLATE_GUIDE.md)
 
-### Onboarding: "Failed to save: Unknown error"
-
-The DevContainer patches the Supervisor automatically on start. If this fails
-(e.g., after a Supervisor update), apply the patch manually:
-
-```bash
-# 1. Apply the patch
-docker exec hassio_supervisor python3 -c "
-path = '/usr/src/supervisor/supervisor/api/supervisor.py'
-with open(path, 'r') as f:
-    content = f.read()
-old = '        if ATTR_DIAGNOSTICS in body:\\n            self.sys_config.diagnostics = body[ATTR_DIAGNOSTICS]\\n            await self.sys_dbus.agent.set_diagnostics(body[ATTR_DIAGNOSTICS])'
-new = '        if ATTR_DIAGNOSTICS in body:\\n            self.sys_config.diagnostics = body[ATTR_DIAGNOSTICS]\\n            try:\\n                await self.sys_dbus.agent.set_diagnostics(body[ATTR_DIAGNOSTICS])\\n            except Exception:\\n                pass'
-if old in content:
-    with open(path, 'w') as f:
-        f.write(content.replace(old, new))
-    print('PATCHED')
-else:
-    print('already patched or pattern changed')
-"
-
-# 2. Restart the Supervisor (do NOT use 'ha supervisor restart' — it removes the patch!)
-docker restart hassio_supervisor
-
-# 3. Wait ~20 seconds, then retry onboarding
 ```
 
 > **Important:** Always use `docker restart hassio_supervisor`!
@@ -222,6 +197,30 @@ docker restart hassio_supervisor
 lsof -i :8000  # Find process
 kill -9 <PID>
 ```
+
+---
+
+## 🛠️ Supervisor Patch für DevContainer
+
+**Wichtig:** Im DevContainer ist Home Assistant Supervisor oft "unhealthy" (`docker_gateway_unprotected`). Das blockiert Add-on-Installationen. Das ist ein bekanntes Problem, weil systemd/dbus im DevContainer fehlen.
+
+**Lösung:**
+
+1. Nach jedem Supervisor-Start/Update führe aus:
+
+```bash
+./patch_supervisor.sh
+```
+
+2. Das Script patched alle nötigen Stellen und startet den Supervisor neu. Danach kannst du Add-ons installieren und entwickeln.
+
+**Warum?**
+- Der Patch ist nach jedem Supervisor-Update/Neustart wieder weg (Container wird ersetzt)
+- Das Script ist idempotent und kann beliebig oft ausgeführt werden
+- Kein manuelles Suchen/Patchen mehr nötig
+
+**Tipp:**
+- Du kannst das Script auch in `dev.sh` als `patch:supervisor` einbinden oder einen VS Code Task anlegen
 
 ---
 
