@@ -53,7 +53,7 @@
       "type": "pickString",
       "description": "Name of addon (to add your addon to this list, please edit .vscode/tasks.json)",
       "options": [
-        "example",
+        "example" // Hier ggf. den Slug deines Add-ons eintragen, z.B. "wled_matrix_manager"
       ]
     }
   ]
