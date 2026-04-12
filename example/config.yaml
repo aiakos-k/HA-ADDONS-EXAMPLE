@@ -1,4 +1,7 @@
 # https://developers.home-assistant.io/docs/add-ons/configuration#add-on-config
+# Note: no "image:" field here intentionally.
+# Local dev: Supervisor builds from Dockerfile automatically (HA UI "Install" works).
+# CI: builder.yaml injects image: ghcr.io/<owner>/<slug>-{arch} before building.
 name: Example add-on
 version: "1.2.0"
 slug: example
@@ -14,8 +17,6 @@ ingress_port: 8000
 ingress_entry_point: /
 panel_icon: mdi:application
 panel_title: Example Dashboard
-# Wichtig für CI/CD:
-image: "ghcr.io/home-assistant/example-{arch}"
 # Enable if your add-on needs to communicate with Home Assistant
 homeassistant_api: true
 # Enable if your add-on needs Supervisor API access

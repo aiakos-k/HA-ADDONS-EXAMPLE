@@ -73,6 +73,15 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6.0.2
 
+      - name: Inject image property if absent
+        run: |
+          if ! grep -q "^image:" "./${{ matrix.addon }}/config.yaml"; then
+            SLUG=$(grep "^slug:" "./${{ matrix.addon }}/config.yaml" | awk '{print $2}')
+            echo "image: \"ghcr.io/${{ github.repository_owner }}/${SLUG}-{arch}\"" \
+              >> "./${{ matrix.addon }}/config.yaml"
+            echo "Injected image: ghcr.io/${{ github.repository_owner }}/${SLUG}-{arch}"
+          fi
+
       - name: Get information
         id: info
         uses: home-assistant/actions/helpers/info@master

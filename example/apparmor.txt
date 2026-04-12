@@ -1,17 +1,31 @@
+#include <tunables/global>
 
-    # Access to mapped volumes specified in config.json
-    /share/** rw,
+profile hassio_example flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
 
-    # Access required for service functionality
-    # Note: List was built by doing the following:
-    # 1. Add what is obviously needed based on what is in the script
-    # 2. Add `complain` as a flag to this profile temporarily and run the addon
-    # 3. Review the audit log with `journalctl _TRANSPORT="audit" -g 'apparmor="ALLOWED"'` and add other access as needed
-    # Remember to remove the `complain` flag when you are done
-    /usr/bin/my_program r,
-    /bin/bash rix,
-    /bin/echo ix,
-    /etc/passwd r,
-    /dev/tty rw,
-  }
+  # Capabilities required for the add-on
+  capability net_bind_service,
+  capability dac_override,
+
+  # Network access (FastAPI backend + WebSocket to HA)
+  network,
+
+  # Allow read access to the whole filesystem (dev-friendly, restrict in production)
+  /usr/src/** r,
+  /usr/local/lib/python3*/** r,
+  /usr/local/bin/* rix,
+  /bin/** rix,
+  /usr/bin/** rix,
+
+  # Mapped volumes
+  /share/** rw,
+
+  # Temp & runtime files
+  /tmp/** rw,
+  /run/** rw,
+
+  # Python / Node executables
+  /usr/local/bin/python3* rix,
+  /usr/bin/node rix,
+  /usr/local/bin/node rix,
 }
