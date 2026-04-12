@@ -51,13 +51,14 @@ code .
 # Command Palette: "Dev Container: Reopen in Container"
 
 # 4. Home Assistant starten (falls nicht automatisch gestartet)
-ha supervisor start
+supervisor_run
 
-# 5. Add-on bauen und starten
-./dev.sh start:addon
-# Oder manuell:
-# ha apps rebuild --force local_example
-# ha apps start local_example
+# 5. Supervisor patchen (nur beim ersten Start nötig)
+chmod +x ./patch_supervisor.sh && ./patch_supervisor.sh
+
+# 6. Add-on bauen und starten
+ha apps rebuild --force local_example
+ha apps start local_example
 ```
 
 ### Lokale Entwicklung ohne DevContainer
@@ -109,8 +110,9 @@ ha-addons-example/
 │   ├── config.yaml             # Add-on Config
 │   ├── build.yaml              # Build Config
 │   ├── CHANGELOG.md
-│   ├── DOCS.md
-│   └── README_NEW.md
+│   └── DOCS.md
+├── devcontainer_bootstrap      # Post-start setup + Supervisor monitor
+├── patch_supervisor.sh         # Supervisor patch für DevContainer
 ├── LICENSE
 └── repository.yaml             # Repository Config
 ```
@@ -133,7 +135,7 @@ ha-addons-example/
 
 ### Infrastructure
 - **Docker** - Containerization
-- **Alpine Linux 3.15** - Leichte Base Image
+- **Alpine Linux 3.20** - Leichte Base Image
 - **Home Assistant** - Smart Home Platform
 - **GitHub Actions** - CI/CD Pipeline
 
@@ -150,19 +152,20 @@ url: https://github.com/username/my-addon-repo
 maintainer: Dein Name
 ```
 
-3. Rename `example` directory zu deinem Add-on Namen
-4. Update `example/config.yaml`:
+3. Rename `example/` directory zu deinem Add-on Namen
+4. Update `example/config.yaml` — nur `slug:`, `name:` und `version:` anpassen:
 
 ```yaml
-slug: my_addon              # Wichtig: muss Directory Namen matchen
+slug: my_addon              # Wichtig: muss Directory-Namen matchen
 name: Mein Custom Add-on
-image: ghcr.io/username/{arch}-addon-my_addon
+version: "1.0.0"
 ```
 
-5. Passe GitHub Actions workflow an (`.github/workflows/builder.yaml`)
+> **Kein `image:` nötig.** Der CI-Builder trägt `ghcr.io/<owner>/<slug>-{arch}`
+> automatisch ein beim Push zu GitHub.
 
-6. Pushe zur deinem Repository
-7. Aktiviere GitHu Actions unter Settings → Actions → General
+5. Pushe zu deinem Repository
+6. Aktiviere GitHub Actions unter Settings → Actions → General
 
 ## 🔌 API Integration
 
@@ -214,15 +217,12 @@ docker run --network="host" test_addon
 ### Im Home Assistant DevContainer
 
 ```bash
-# Rebuild & Start Add-on (empfohlen)
-./dev.sh start:addon
-
-# Oder manuell:
+# Rebuild & Start Add-on
 ha apps rebuild --force local_example
 ha apps start local_example
 
 # View Logs
-./dev.sh logs
+docker logs --follow addon_local_example
 ```
 
 ## 📝 Weitere Schritte nach Setup
@@ -252,8 +252,9 @@ npm run build
 
 ### Add-on nicht in der Seitenleiste
 ```bash
-# ingress_panel muss aktiviert werden (./dev.sh start:addon macht das automatisch)
-./dev.sh start:addon
+# Add-on neu bauen und starten
+ha apps rebuild --force local_example
+ha apps start local_example
 ```
 
 ### WebSocket Verbindung fehlgeschlagen

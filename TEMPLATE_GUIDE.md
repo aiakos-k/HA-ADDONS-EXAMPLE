@@ -172,7 +172,6 @@ Supervisor-Neustart.
 Damit das Add-on in der HA-Seitenleiste erscheint, muss `ingress_panel: true` gesetzt werden:
 
 ```bash
-# Wird automatisch von dev.sh start:addon ausgeführt
 curl -X POST \
   -H "Authorization: Bearer $SUPERVISOR_TOKEN" \
   -H "Content-Type: application/json" \
