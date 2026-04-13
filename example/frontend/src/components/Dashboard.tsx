@@ -3,14 +3,16 @@
  */
 
 import { useEffect } from 'react'
+import { Alert, Button, Card, Col, Empty, Row, Space, Tag, Typography } from 'antd'
+import { ReloadOutlined } from '@ant-design/icons'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { useHAStore } from '@/store/ha'
 import haClient from '@/api/client'
-import './Dashboard.css'
+
+const { Text, Title } = Typography
 
 export function Dashboard() {
   const { sendMessage } = useWebSocket()
-  const connected = useHAStore((state) => state.connected)
   const status = useHAStore((state) => state.status)
   const entities = useHAStore((state) => state.entities)
   const error = useHAStore((state) => state.error)
@@ -30,52 +32,46 @@ export function Dashboard() {
   }, [setStatus])
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>🏠 Home Assistant</h1>
-        <div className="status-indicator">
-          <span className={`status ${connected ? 'connected' : 'disconnected'}`}>
-            {connected ? '● Connected' : '○ Disconnected'}
-          </span>
-        </div>
-      </header>
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      {error && (
+        <Alert message={error} type="error" showIcon closable />
+      )}
 
-      <main className="dashboard-main">
-        {error && (
-          <div className="error-banner">
-            <p>⚠️ {error}</p>
-          </div>
-        )}
+      <Card>
+        <Title level={5} style={{ margin: 0, marginBottom: 8 }}>Status</Title>
+        <Tag color={status === 'error' ? 'red' : status === 'loading' ? 'processing' : 'green'}>
+          {status}
+        </Tag>
+      </Card>
 
-        <section className="status-section">
-          <h2>Status: {status}</h2>
-        </section>
-
-        <section className="entities-section">
-          <h2>Entities ({entities.length})</h2>
-          {entities.length === 0 ? (
-            <p className="empty-state">No entities available</p>
-          ) : (
-            <div className="entities-grid">
-              {entities.map((entity) => (
-                <div key={entity.entity_id} className="entity-card">
-                  <div className="entity-id">{entity.entity_id}</div>
-                  <div className="entity-state">{entity.state}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="actions-section">
-          <button
+      <Card
+        title={`Entities (${entities.length})`}
+        extra={
+          <Button
+            icon={<ReloadOutlined />}
             onClick={() => sendMessage({ action: 'get_entities' })}
-            className="btn btn-primary"
           >
-            Refresh Entities
-          </button>
-        </section>
-      </main>
-    </div>
+            Refresh
+          </Button>
+        }
+      >
+        {entities.length === 0 ? (
+          <Empty description="No entities available" />
+        ) : (
+          <Row gutter={[16, 16]}>
+            {entities.map((entity) => (
+              <Col key={entity.entity_id} xs={24} sm={12} md={8} lg={6}>
+                <Card size="small" style={{ background: '#fafafa' }}>
+                  <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>
+                    {entity.entity_id}
+                  </Text>
+                  <Text strong>{entity.state}</Text>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        )}
+      </Card>
+    </Space>
   )
 }

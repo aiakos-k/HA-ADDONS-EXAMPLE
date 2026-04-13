@@ -46,7 +46,7 @@ if command -v python3 &> /dev/null; then
 fi
 
 # Install frontend dependencies
-if command -v npm &> /dev/null || command -v npm &> /dev/null; then
+if command -v npm &> /dev/null; then
   if [ ! -d "example/frontend/node_modules" ]; then
     echo "📦 Installing frontend dependencies..."
     cd example/frontend
@@ -56,8 +56,8 @@ if command -v npm &> /dev/null || command -v npm &> /dev/null; then
 fi
 
 # Install Claude Code CLI
-if ! command -v claude &> /dev/null; then
-  echo "📦 Installing Claude Code..."
+if command -v npm &> /dev/null && ! command -v claude &> /dev/null; then
+  echo "🤖 Installing Claude Code CLI..."
   npm install -g @anthropic-ai/claude-code
 fi
 
@@ -96,6 +96,7 @@ patch_supervisor() {
   echo "🔧 Applying DevContainer patches to Supervisor..."
 
   # Patch 1: Skip gateway firewall check (requires systemd/dbus)
+  # Replaces the whole method body with a stub — robust across supervisor versions
   docker exec hassio_supervisor python3 -c "
 path = '/usr/src/supervisor/supervisor/host/firewall.py'
 with open(path, 'r') as f:
@@ -143,10 +144,13 @@ else:
   # Copy apparmor_parser into supervisor container
   docker cp /usr/local/bin/apparmor_parser hassio_supervisor:/usr/sbin/apparmor_parser 2>/dev/null || true
 
-  # Restart supervisor to apply patches
-  echo "  🔄 Restarting Supervisor to apply patches..."
-  ha supervisor restart 2>/dev/null || true
-  sleep 10
+  # Restart supervisor container to apply patches.
+  # IMPORTANT: Use "docker restart" (preserves file changes in the container).
+  # NEVER use "ha supervisor restart" (recreates container from image = patches lost)!
+  # NEVER use "pkill" (cascading failure kills Docker daemon)!
+  echo "  🔄 Restarting Supervisor container to apply patches..."
+  docker restart hassio_supervisor 2>/dev/null || true
+  sleep 15
 }
 
 # Monitor supervisor container and re-apply patches after restarts/updates
