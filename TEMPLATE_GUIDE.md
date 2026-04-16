@@ -197,7 +197,53 @@ curl -X POST \
 
 ---
 
-## 10. Häufige Fehler
+## 10. Code-Qualität & CI
+
+### 10.1 Biome (Frontend)
+
+Biome ersetzt ESLint + Prettier in einem einzigen Tool ohne externe Plugin-Abhängigkeiten.
+Konfiguration: `example/frontend/biome.json`
+
+```bash
+cd example/frontend
+npm run lint        # Prüfen (kein Schreiben)
+npm run lint:fix    # Probleme automatisch beheben
+npm run format      # Alle Dateien formatieren
+```
+
+### 10.2 Ruff (Backend)
+
+Ruff ist ein schneller Python-Linter und -Formatter (ersetzt flake8 + isort + black).
+Konfiguration: `example/backend/pyproject.toml`
+
+```bash
+cd example/backend
+pip install -r requirements-dev.txt   # einmalig
+
+ruff check .         # Prüfen
+ruff check --fix .   # Automatisch beheben
+ruff format .        # Formatieren
+```
+
+### 10.3 Husky Pre-Commit Hook
+
+`.husky/pre-commit` läuft automatisch bei jedem `git commit`:
+- Erkennt geänderte `.ts/.tsx/.js/.jsx`-Dateien unter `example/frontend/src/` → führt Biome aus
+- Erkennt geänderte `.py`-Dateien → führt Ruff check + format aus
+- Staged Dateien werden nach dem Fix automatisch neu hinzugefügt
+
+**Wichtig beim Umbenennen des Add-ons:** Die Grep-Patterns im Hook an den neuen Verzeichnisnamen anpassen.
+
+### 10.4 CodeQL (GitHub Actions)
+
+`.github/workflows/codeql.yml` analysiert Python und JavaScript/TypeScript:
+- Bei jedem Push/PR auf `main`
+- Wöchentlich (montags 03:00 UTC)
+- Ergebnisse unter **Security → Code scanning alerts** im Repository
+
+---
+
+## 11. Häufige Fehler (Ingress & DevContainer)
 
 **404 Not Found im Dashboard:**
 → Prüfe `base: './'` in `vite.config.ts` und rebuild das Frontend

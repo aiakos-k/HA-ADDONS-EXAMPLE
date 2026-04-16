@@ -15,7 +15,10 @@
 git clone https://github.com/home-assistant/addons-example.git
 cd ha-addons-example
 
-# 2. Open in VS Code
+# 2. Install root dependencies (activates Husky pre-commit hooks)
+npm install
+
+# 3. Open in VS Code
 code .
 ```
 
@@ -103,9 +106,15 @@ docker logs --follow addon_local_example
 | `example/Dockerfile` | Multi-stage build (React + FastAPI) |
 | `example/backend/app/main.py` | FastAPI application entry point |
 | `example/backend/app/ha_client.py` | Home Assistant WebSocket client |
+| `example/backend/pyproject.toml` | Ruff configuration |
+| `example/backend/requirements-dev.txt` | Dev dependencies (Ruff) |
 | `example/frontend/src/App.tsx` | React app root |
 | `example/frontend/src/api/client.ts` | Frontend API client (Ingress-aware) |
+| `example/frontend/biome.json` | Biome linter/formatter configuration |
 | `.devcontainer.json` | VS Code DevContainer config |
+| `.github/workflows/codeql.yml` | CodeQL security analysis |
+| `.husky/pre-commit` | Pre-commit hook (Biome + Ruff) |
+| `package.json` | Root package (Husky) |
 | `devcontainer_bootstrap` | Post-start setup + Supervisor monitor |
 | `patch_supervisor.sh` | Supervisor patch for DevContainer |
 
@@ -139,13 +148,32 @@ kill -9 <PID>
 
 ---
 
+## Code Quality
+
+```bash
+# Frontend — lint and format
+cd example/frontend
+npm run lint:fix   # Biome: fix all auto-fixable issues
+npm run format     # Biome: format all files
+
+# Backend — lint and format
+cd example/backend
+ruff check --fix . # fix all auto-fixable issues
+ruff format .      # format all files
+```
+
+Husky runs both tools automatically on every `git commit` — only staged files are checked.
+
+---
+
 ## Creating a New Add-on from This Template
 
 1. Rename the `example/` folder to your add-on name
 2. Update `slug:`, `name:`, `version:` in `config.yaml`
 3. Update `build.yaml` labels
-4. Implement your backend + frontend
-5. Push to GitHub → CI automatically builds and pushes
+4. Update the grep pattern in `.husky/pre-commit` if the directory name changed
+5. Implement your backend + frontend
+6. Push to GitHub → CI automatically builds and pushes
    `ghcr.io/<owner>/<slug>-{arch}` to GHCR (no extra config needed)
 
 ---

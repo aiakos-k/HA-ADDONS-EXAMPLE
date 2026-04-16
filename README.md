@@ -31,6 +31,10 @@ Modernes Home Assistant Add-on mit **FastAPI Backend**, **React Frontend** und *
 - ✅ Multi-Stage Docker Build
 - ✅ VS Code DevContainer
 - ✅ Async Architecture
+- ✅ Biome (Linting & Formatting, Frontend)
+- ✅ Ruff (Linting & Formatting, Backend)
+- ✅ Husky Pre-Commit Hooks
+- ✅ CodeQL Security Analysis
 
 **Neue Benutzer?** → Siehe [QUICKSTART.md](./QUICKSTART.md)
 **Technische Details?** → Siehe [TEMPLATE_GUIDE.md](./TEMPLATE_GUIDE.md)
@@ -64,14 +68,18 @@ ha apps start local_example
 ### Lokale Entwicklung ohne DevContainer
 
 ```bash
+# Root-Dependencies installieren (Husky)
+npm install
+
 # Backend
 cd example/backend
 pip install -r requirements.txt
+pip install -r requirements-dev.txt  # Ruff
 python main.py
 
 # Frontend (in anderem Terminal)
 cd example/frontend
-npm install
+npm install --legacy-peer-deps
 npm run dev
 ```
 
@@ -86,16 +94,25 @@ Frontend: http://localhost:3000
 ha-addons-example/
 ├── .devcontainer.json          # VS Code DevContainer Config
 ├── .github/
-│   └── workflows/              # GitHub Actions (CI/CD)
+│   └── workflows/
+│       ├── builder.yaml        # Multi-Arch Docker Build
+│       ├── codeql.yml          # CodeQL Security Analysis
+│       └── lint.yaml           # HA Add-on Linter
+├── .husky/
+│   └── pre-commit              # Biome + Ruff vor jedem Commit
+├── package.json                # Root (Husky)
 ├── example/                    # Example Add-on
 │   ├── backend/                # FastAPI Backend
 │   │   ├── main.py
 │   │   ├── requirements.txt
+│   │   ├── requirements-dev.txt  # Ruff
+│   │   ├── pyproject.toml      # Ruff-Konfiguration
 │   │   └── app/
 │   │       ├── router.py
 │   │       ├── models.py
 │   │       └── ha_client.py
 │   ├── frontend/               # React Frontend
+│   │   ├── biome.json          # Biome-Konfiguration
 │   │   ├── package.json
 │   │   ├── tsconfig.json
 │   │   ├── vite.config.ts
@@ -132,12 +149,17 @@ ha-addons-example/
 - **Vite** - Moderne Build Tool
 - **Zustand** - State Management
 - **Axios** - HTTP Client
+- **Biome** - Linting & Formatting
+
+### Backend
+- **Ruff** - Python Linting & Formatting
 
 ### Infrastructure
 - **Docker** - Containerization
 - **Alpine Linux 3.20** - Leichte Base Image
 - **Home Assistant** - Smart Home Platform
-- **GitHub Actions** - CI/CD Pipeline
+- **GitHub Actions** - CI/CD Pipeline + CodeQL Security Analysis
+- **Husky** - Git Pre-Commit Hooks
 
 ## 📖 Konfiguration anpassen
 
@@ -202,6 +224,36 @@ WebSocket Updates werden automatisch zum Frontend gestreamt:
 }
 ```
 
+## 🛠️ Code-Qualität
+
+### Frontend (Biome)
+
+```bash
+cd example/frontend
+npm run lint        # Prüfen
+npm run lint:fix    # Automatisch beheben
+npm run format      # Formatieren
+```
+
+### Backend (Ruff)
+
+```bash
+cd example/backend
+ruff check .        # Prüfen
+ruff check --fix .  # Automatisch beheben
+ruff format .       # Formatieren
+```
+
+### Pre-Commit Hooks (Husky)
+
+Nach `npm install` im Repo-Root werden Biome und Ruff automatisch vor jedem Commit ausgeführt. Nur geänderte Dateien werden geprüft.
+
+### Security (CodeQL)
+
+GitHub führt CodeQL automatisch bei jedem Push/PR auf `main` sowie wöchentlich aus. Ergebnisse sind unter **Security → Code scanning** im Repository sichtbar.
+
+---
+
 ## 🧪 Testen
 
 ### Lokal testen
@@ -228,12 +280,13 @@ docker logs --follow addon_local_example
 ## 📝 Weitere Schritte nach Setup
 
 - [ ] Repository forken/klonen
+- [ ] `npm install` im Repo-Root ausführen (Husky aktivieren)
 - [ ] `repository.yaml` anpassen
 - [ ] `example` directory umbenennen
 - [ ] `config.yaml` aktualisieren
 - [ ] GitHub Actions konfigurieren
 - [ ] GitHub Container Registry Setup
-- [ ] Dein First Add-on publishen! 🎉
+- [ ] Dein First Add-on publishen!
 
 ## 🐛 Häufige Probleme
 

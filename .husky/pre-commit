@@ -1,0 +1,14 @@
+#!/bin/sh
+STAGED_TS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E "^example/frontend/src/.*\.(ts|tsx|js|jsx)$" || true)
+if [ -n "$STAGED_TS" ]; then
+  (cd example/frontend && npx biome check --write src) || exit 1
+  git add example/frontend/src
+fi
+
+STAGED_PY=$(git diff --cached --name-only --diff-filter=ACMR | grep "\.py$" || true)
+if [ -n "$STAGED_PY" ]; then
+  command -v ruff >/dev/null 2>&1 || { echo "ruff not found — install via: pip install -r example/backend/requirements-dev.txt"; exit 1; }
+  echo "$STAGED_PY" | xargs ruff check --fix || exit 1
+  echo "$STAGED_PY" | xargs ruff format || exit 1
+  echo "$STAGED_PY" | xargs git add
+fi
