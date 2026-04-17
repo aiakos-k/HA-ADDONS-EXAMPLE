@@ -3,29 +3,24 @@
 profile hassio_example flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
-  # Capabilities required for the add-on
-  capability net_bind_service,
-  capability dac_override,
+  file,
+  signal (send) set=(kill,term,int,hup,cont),
 
-  # Network access (FastAPI backend + WebSocket to HA)
-  network,
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
 
-  # Allow read access to the whole filesystem (dev-friendly, restrict in production)
-  /usr/src/** r,
-  /usr/local/lib/python3*/** r,
-  /usr/local/bin/* rix,
-  /bin/** rix,
-  /usr/bin/** rix,
+  /usr/lib/bashio/** ix,
+  /tmp/** rwk,
 
-  # Mapped volumes
+  /data/** rw,
   /share/** rw,
-
-  # Temp & runtime files
-  /tmp/** rw,
-  /run/** rw,
-
-  # Python / Node executables
-  /usr/local/bin/python3* rix,
-  /usr/bin/node rix,
-  /usr/local/bin/node rix,
 }

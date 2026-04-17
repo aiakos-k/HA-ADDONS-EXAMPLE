@@ -350,3 +350,13 @@ npm test
 - [WebSocket API Docs](https://developers.home-assistant.io/docs/api/websocket/)
 - [FastAPI Tutorial](https://fastapi.tiangolo.com/tutorial/)
 - [React Hooks](https://react.dev/reference/react)
+
+---
+
+## Support
+
+If you find this add-on useful, consider buying me a coffee or donating via PayPal:
+
+<a href="https://www.buymeacoffee.com/aiakosmk" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me a Coffee" style="height: 40px !important;width: 145px !important;" ></a>
+&nbsp;&nbsp;
+<a href="https://paypal.me/MKPp1107" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="Donate via PayPal" style="height: 40px !important;" ></a>

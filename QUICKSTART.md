@@ -39,7 +39,7 @@ After the container is ready, start the Supervisor if it is not already running:
 supervisor_run
 ```
 
-Home Assistant is available at **http://localhost,:7123**
+Home Assistant is available at **http://localhost:7123**
 
 ---
 
