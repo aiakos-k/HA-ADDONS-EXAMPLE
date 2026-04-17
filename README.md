@@ -2,12 +2,15 @@
 
 Ein modernes Blueprint-Repository für **Home Assistant Add-on Entwicklung** mit Best Practices.
 
+![Supports aarch64 Architecture][aarch64-shield]
+![Supports amd64 Architecture][amd64-shield]
+
+[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2F<YOUR-GITHUB-USERNAME>%2F<YOUR-REPO-NAME>)
+
 Dieses Repository zeigt die moderne, empfohlene Architektur für HA-Add-ons:
 - **Backend**: FastAPI + WebSocket Client zu Home Assistant
-- **Frontend**: React + TypeScript + Zustand State Management
+- **Frontend**: React + TypeScript + Ant Design
 - **Integration**: Ingress UI + Multi-Stage Docker Build
-
-[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhome-assistant%2Faddons-example)
 
 ## 📚 Dokumentation
 
@@ -314,15 +317,12 @@ ha apps start local_example
 - Im DevContainer: WebSocket läuft auf `supervisor` Hostname
 - Nicht `localhost`!
 
-## 📞 Support & Community
-
-- [Home Assistant Community Forum](https://community.home-assistant.io/)
-- [Home Assistant Discord](https://discord.gg/home-assistant)
-- [Home Assistant GitHub Discussions](https://github.com/home-assistant/core/discussions)
 
 ## 📄 Lizenz
 
-Apache License 2.0 - siehe [LICENSE](./LICENSE)
+European Union Public Licence v. 1.2 (EUPL-1.2) — siehe [LICENSE](./LICENSE)
+
+EUPL-1.2 ist kompatibel mit GPL v2/v3, AGPL v3, LGPL v2.1/v3, MPL v2 und anderen (siehe Anhang der Lizenz).
 
 ---
 
