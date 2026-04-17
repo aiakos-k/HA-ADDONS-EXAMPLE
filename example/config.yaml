@@ -14,7 +14,7 @@ init: false
 apparmor: false
 ingress: true
 ingress_port: 8000
-ingress_entry_point: /
+ingress_entry: /
 panel_icon: mdi:application
 panel_title: Example Dashboard
 # Enable if your add-on needs to communicate with Home Assistant
