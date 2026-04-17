@@ -10,8 +10,10 @@ updates:
     directory: "/example/backend/"
     schedule:
       interval: weekly
+      time: "06:00"
 
   - package-ecosystem: "npm"
     directory: "/example/frontend/"
     schedule:
       interval: weekly
+      time: "06:00"

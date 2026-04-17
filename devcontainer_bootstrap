@@ -11,17 +11,17 @@ for dir in /mnt/supervisor/addons/local/*/; do
   git config --global --add safe.directory "$dir" 2>/dev/null || true
 done
 
-# Create dummy apparmor_parser (not available in DevContainer)
-if ! command -v apparmor_parser &> /dev/null; then
-  printf '#!/bin/bash\nexit 0\n' > /usr/local/bin/apparmor_parser
-  chmod +x /usr/local/bin/apparmor_parser
-fi
-
 # Ensure /run/supervisor is a directory (fix for Home Assistant Core mount)
 if [ -f /run/supervisor ]; then
   rm -f /run/supervisor
 fi
 mkdir -p /run/supervisor
+
+# Create dummy apparmor_parser (not available in DevContainer)
+if ! command -v apparmor_parser &> /dev/null; then
+  printf '#!/bin/bash\nexit 0\n' > /usr/local/bin/apparmor_parser
+  chmod +x /usr/local/bin/apparmor_parser
+fi
 
 # Check if Python is available
 if ! command -v python3 &> /dev/null; then
